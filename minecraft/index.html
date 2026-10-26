@@ -308,6 +308,20 @@ footer a:hover{color:var(--red-hot)}
   .sign{padding:24px 22px 40px}
   #videos{padding-top:40px}
 }
+/* bloco "Improving your intros": um vídeo só, centralizado, acima dos long-form */
+.intro-block{text-align:center;margin-bottom:64px}
+.intro-tag{
+  display:inline-block;margin-bottom:24px;
+  font-family:var(--font-pixel);font-weight:700;font-size:1.5rem;line-height:1.2;
+  background:var(--red);color:#fff;border:4px solid #000;
+  padding:6px 16px;box-shadow:4px 4px 0 #000;text-shadow:2px 2px 0 #8E1426;
+  transform:rotate(-1.5deg);
+}
+.intro-grid{max-width:960px;margin:0 auto}
+@media (max-width:767px){
+  .intro-block{margin-bottom:48px}
+  .intro-tag{font-size:1.25rem}
+}
 /* cabeçalho mais baixo */
 html{scroll-padding-top:64px}
 .nav .wrap{height:64px}
@@ -357,6 +371,10 @@ html{scroll-padding-top:64px}
   <section id="videos" class="section">
     <div class="wrap">
       <h2 class="section-title">Videos</h2>
+      <div id="intro-block" class="intro-block">
+        <h3 class="intro-tag">Improving your intros</h3>
+        <div class="intro-grid" id="intro-grid"></div>
+      </div>
       <div id="long-block">
         <h3 class="sub-title">Long-form</h3>
         <div class="grid-long" id="long-grid"></div>
@@ -415,6 +433,10 @@ html{scroll-padding-top:64px}
    Cole o link do YouTube entre as aspas. Seções sem vídeo somem.
    ========================================================= */
 const CONFIG = {
+  // Vídeo do bloco "Improving your intros" (fica sozinho, centralizado, acima dos long-form).
+  // Deixe "" vazio para esconder esse bloco.
+  introVideo: "https://youtu.be/0i5Y-JvqvCU",
+
   longVideos: [
     "https://youtu.be/gnzpI3GUcxk",
     "https://youtu.be/5Hba_UnySAU",
@@ -436,10 +458,10 @@ function ytId(url){
   const m = url.match(/(?:youtu\.be\/|v=|\/shorts\/|\/embed\/)([A-Za-z0-9_-]{11})/);
   return m ? m[1] : null;
 }
-function frame(id, kind, n){
+function frame(id, kind, n, label){
   const div = document.createElement("div");
   div.className = "frame " + kind;
-  div.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}" title="Minecraft ${kind === "long" ? "long-form" : "short"} edit ${n}" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
+  div.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}" title="${label || ("Minecraft " + (kind === "long" ? "long-form" : "short"))} edit ${n}" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
   return div;
 }
 function renderVideos(list, gridId, blockId, kind){
@@ -450,7 +472,18 @@ function renderVideos(list, gridId, blockId, kind){
   if(kind === "long" && ids.length === 1) grid.classList.add("single");
   return ids.length;
 }
-const total = renderVideos(CONFIG.longVideos,"long-grid","long-block","long")
+// vídeo do bloco "Improving your intros"
+let introTotal = 0;
+const introId = ytId(CONFIG.introVideo);
+if(introId){
+  document.getElementById("intro-grid").appendChild(frame(introId, "long", 1, "Intro improvement"));
+  introTotal = 1;
+} else {
+  document.getElementById("intro-block").hidden = true;
+}
+
+const total = introTotal
+            + renderVideos(CONFIG.longVideos,"long-grid","long-block","long")
             + renderVideos(CONFIG.shortVideos,"short-grid","short-block","short");
 if(!total) document.getElementById("videos").hidden = true;
 

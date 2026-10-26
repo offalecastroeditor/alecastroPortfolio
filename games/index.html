@@ -333,7 +333,12 @@ footer a:hover{color:var(--red-hot)}
   .sign{padding:24px 22px 40px}
   #videos{padding-top:40px}
 }
-.vo-grid{max-width:960px}
+/* voice-over: vídeos lado a lado (1 por linha no celular) */
+.vo-grid{display:grid;grid-template-columns:1fr;gap:32px;max-width:none}
+@media (min-width:768px){
+  .vo-grid{grid-template-columns:repeat(2,1fr)}
+  .vo-grid.single{grid-template-columns:minmax(0,960px);justify-content:center}
+}
 /* cabeçalho mais baixo */
 html{scroll-padding-top:64px}
 .nav .wrap{height:64px}
@@ -457,11 +462,14 @@ const CONFIG = {
     "https://youtu.be/gnzpI3GUcxk"
   ],
 
-  // Vídeo em destaque, separado dos outros: feito a partir de um único voice-over.
-  // Deixe video: "" para esconder esse bloco.
+  // Vídeos em destaque, separados dos outros: feitos a partir de um único voice-over.
+  // Ficam lado a lado (2 por linha). Deixe videos: [] vazio para esconder esse bloco.
   voiceOver: {
-    video: "https://youtu.be/pHoDKyTQt50",
-    note: "All I got was one voice-over track. I found the footage, built the pacing and edited the whole video around it."
+    note: "All I got was one voice-over track. I found the footage, built the pacing and edited the whole video around it.",
+    videos: [
+      "https://youtu.be/pHoDKyTQt50",
+      "https://youtu.be/OaklG4T1eg4"
+    ]
   },
 
   // Shorts separados por categoria. Para criar outra categoria, copie um bloco { title, videos }
@@ -525,12 +533,14 @@ if(!shortTotal) document.getElementById("short-block").hidden = true;
 
 // vídeo de um único voice-over
 let voTotal = 0;
-const voId = ytId(CONFIG.voiceOver && CONFIG.voiceOver.video);
-if(voId){
-  document.getElementById("vo-grid").appendChild(frame(voId, "long", 1, "Single voice-over"));
+const voIds = ((CONFIG.voiceOver && CONFIG.voiceOver.videos) || []).map(ytId).filter(Boolean);
+if(voIds.length){
+  const voGrid = document.getElementById("vo-grid");
+  voIds.forEach((id,i)=>voGrid.appendChild(frame(id, "long", i+1, "Voice-over")));
+  if(voIds.length === 1) voGrid.classList.add("single");
   document.getElementById("vo-note").textContent = CONFIG.voiceOver.note || "";
   if(!CONFIG.voiceOver.note) document.getElementById("vo-note").hidden = true;
-  voTotal = 1;
+  voTotal = voIds.length;
 } else {
   document.getElementById("vo-block").hidden = true;
 }
