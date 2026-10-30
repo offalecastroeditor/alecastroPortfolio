@@ -125,6 +125,7 @@ a{color:inherit}
 .stack.shorts{align-items:center;gap:48px}
 .mat{background:var(--surface);border:1px solid var(--line);padding:8px;border-radius:16px;width:100%}
 .mat.short{max-width:360px;border-radius:24px}
+.mat.glow{box-shadow:0 0 50px 6px rgba(37,120,255,.55), 0 0 120px 20px rgba(37,120,255,.25)}
 .frame{position:relative;overflow:hidden;background:#000;border-radius:9px}
 .mat.long .frame{aspect-ratio:16/9}
 .mat.short .frame{aspect-ratio:9/16;border-radius:17px}
@@ -306,9 +307,11 @@ const CONFIG = {
   featuredShort: "https://youtube.com/shorts/Jsqnb_87u-U",
 
   longVideos: [
-    "https://youtu.be/WeVATlOhSkw",
     // para destacar trechos, use { url: "...", highlights: ["m:ss-m:ss", ...] }
-    { url: "https://youtu.be/H_PXmZKpofY", highlights: ["0:05-0:15", "1:40-1:56"] }
+    // note: troca o texto antes dos trechos; glow: true põe brilho azul atrás do vídeo
+    { url: "https://youtu.be/g1uASc7VK4g", note: "Car edit highlights (montages) at ", highlights: ["0:00-0:10", "2:49-3:00", "6:48-7:12"], glow: true },
+    { url: "https://youtu.be/H_PXmZKpofY", highlights: ["0:05-0:15", "1:40-1:56"] },
+    "https://youtu.be/WeVATlOhSkw"
   ],
   shortVideos: [
     "https://youtube.com/shorts/yK49PnE1L-E",
@@ -339,13 +342,15 @@ function toSeconds(s){ const [m, sec] = s.trim().split(":").map(Number); return 
 function addItem(stack, item, kind, n){
   const id = ytId(item.url);
   const mat = videoBlock(id, kind, n);
+  if(item.glow) mat.classList.add("glow");
   const marks = item.highlights || [];
   if(!marks.length){ stack.appendChild(mat); return; }
   const fig = document.createElement("figure");
   fig.className = "vid " + kind;
   const hint = document.createElement("p");
   hint.className = "hint";
-  hint.innerHTML = '<span class="arrow" aria-hidden="true">↓</span>Watch especially ';
+  hint.innerHTML = '<span class="arrow" aria-hidden="true">↓</span>';
+  hint.append(item.note || "Watch especially ");
   marks.forEach((range, i)=>{
     const [from, to] = range.split("-");
     const btn = document.createElement("button");
